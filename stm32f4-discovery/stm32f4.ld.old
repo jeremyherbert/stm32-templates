@@ -1,5 +1,5 @@
 /*
-Linker script for STM32F10x_128K_8K
+Linker script for STM32F4_1024K_192K
 
 modified from
 
@@ -10,7 +10,7 @@ http://www.codesourcery.com/archives/arm-gnu/msg02972.html
 There will be a link error if there is not this amount of RAM free at the
 end.
 */
-_Minimum_Stack_Size = 256;
+_Minimum_Stack_Size = 0x400;
 
 ENTRY(Reset_Handler)
 
@@ -19,13 +19,13 @@ ENTRY(Reset_Handler)
 
 MEMORY
 {
-  RAM (rwx)  : ORIGIN = 0x20000000, LENGTH = 8K
-  FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 128K
+  RAM (rwx)  : ORIGIN = 0x20000000, LENGTH = 192K
+  FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 1024K
 }
 
 /* highest address of the user mode stack */
 
-_estack = 0x20002000;
+_estack = 0x20020000;
 
 PROVIDE ( _Stack_Limit = _estack - _Minimum_Stack_Size );
 
@@ -35,16 +35,23 @@ SECTIONS
 {
     .text :
     {
+	. = ALIGN(4);
         KEEP(*(.isr_vector))            /* Startup code */
+	. = ALIGN(4);
         *(.text)                   /* code */
         *(.text.*)                 /* remaining code */
         *(.rodata)                 /* read-only data (constants) */
         *(.rodata.*)
         *(.glue_7)
         *(.glue_7t)
+	*(.eh_frame)		/* GCC exceptions */
         *(.vfp11_veneer)
         *(.v4_bx)
         *(.ARM.extab* .gnu.linkonce.armextab.*)
+	
+	KEEP (*(.init))
+    	KEEP (*(.fini))
+	
     } >FLASH
 
     /* for exception handling/unwind - some Newlib functions (in
@@ -61,6 +68,27 @@ SECTIONS
         *(.ARM.exidx* .gnu.linkonce.armexidx.*)
     } > FLASH
         __exidx_end = .;
+
+  .preinit_array     :
+  {
+    PROVIDE_HIDDEN (__preinit_array_start = .);
+    KEEP (*(.preinit_array*))
+    PROVIDE_HIDDEN (__preinit_array_end = .);
+  } >FLASH
+  .init_array :
+  {
+    PROVIDE_HIDDEN (__init_array_start = .);
+    KEEP (*(SORT(.init_array.*)))
+    KEEP (*(.init_array*))
+    PROVIDE_HIDDEN (__init_array_end = .);
+  } >FLASH
+  .fini_array :
+  {
+    PROVIDE_HIDDEN (__fini_array_start = .);
+    KEEP (*(.fini_array*))
+    KEEP (*(SORT(.fini_array.*)))
+    PROVIDE_HIDDEN (__fini_array_end = .);
+  } >FLASH
 
     . = ALIGN(4);
      _etext = .;
@@ -176,3 +204,4 @@ stack
     .debug_typenames 0 : { *(.debug_typenames) }
     .debug_varnames  0 : { *(.debug_varnames) }
 }
+
