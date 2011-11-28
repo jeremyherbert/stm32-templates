@@ -34,7 +34,6 @@ all: libstm32f4.a
 
 libstm32f4.a: $(OBJS)
 	$(AR) -r $@ $(OBJS)
-	rm -f *.o
 
 clean:
 	rm -f $(OBJS) libstm32f4.a

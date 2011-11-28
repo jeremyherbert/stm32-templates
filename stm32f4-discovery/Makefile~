@@ -10,29 +10,19 @@ PROJ_NAME=main
 
 ###################################################
 
-export CC=arm-none-eabi-gcc
-export LD=arm-none-eabi-gcc
-export AR=arm-none-eabi-ar
-export AS=arm-none-eabi-as
-export OBJCOPY=arm-none-eabi-objcopy
-export RANLIB=arm-none-eabi-ranlib
+CC=arm-none-eabi-gcc
+OBJCOPY=arm-none-eabi-objcopy
 
-export LDFLAGS=-Wl,-T,stm32_flash.ld -Llib -lstm32f4
-#export CFLAGS=-g -O1 -c -nostdlib -fno-common 
-#CFLAGS += -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mthumb-interwork -mlittle-endian -mfpu=fpv4-sp-d16 
-#CFLAGS += -DUSE_STDPERIPH_DRIVER -DSTM32F4XX -DMANGUSTA_DISCOVERY -DHSE_VALUE=8000000
-export CFLAGS=-g -O2
+CFLAGS  = -g -O2 -Wall 
 CFLAGS += -mlittle-endian -mthumb -mcpu=cortex-m4 -mthumb-interwork
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
-CFLAGS += -ffreestanding -nostdlib
-
-#CWD = $(shell pwd)
-#export ROOT=$(CWD)
-#export LIB_ROOT=$(ROOT)/lib
 
 ###################################################
 
-vpath %.c src 
+vpath %.c src
+vpath %.a lib
+
+ROOT=$(shell pwd)
 
 CFLAGS += -Iinc -Ilib -Ilib/inc 
 CFLAGS += -Ilib/inc/core -Ilib/inc/peripherals 
@@ -57,7 +47,7 @@ lib:
 proj: 	$(PROJ_NAME).elf
 
 $(PROJ_NAME).elf: $(SRCS)
-	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS) $^ -o $@ -Llib -lstm32f4
 #	$(LD) $(LDFLAGS) --verbose -o $@ $(OBJS) -lstm32f4
 	$(OBJCOPY) -O ihex $(PROJ_NAME).elf $(PROJ_NAME).hex
 	$(OBJCOPY) -O binary $(PROJ_NAME).elf $(PROJ_NAME).bin
