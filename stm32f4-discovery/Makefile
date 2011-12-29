@@ -33,13 +33,9 @@ OBJS = $(SRCS:.c=.o)
 
 ###################################################
 
-.PHONY: proj
+.PHONY: lib proj
 
-all: 	proj
-
-
-#startup:
-#	$(AS) $(LIB_ROOT)/startup_stm32f4xx.s -o $(LIB_ROOT)/startup.o -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mthumb-interwork -mfpu=fpv4-sp-d16 -mlittle-endian 
+all: lib proj
 
 lib:
 	$(MAKE) -C lib
@@ -48,7 +44,6 @@ proj: 	$(PROJ_NAME).elf
 
 $(PROJ_NAME).elf: $(SRCS)
 	$(CC) $(CFLAGS) $^ -o $@ -Llib -lstm32f4
-#	$(LD) $(LDFLAGS) --verbose -o $@ $(OBJS) -lstm32f4
 	$(OBJCOPY) -O ihex $(PROJ_NAME).elf $(PROJ_NAME).hex
 	$(OBJCOPY) -O binary $(PROJ_NAME).elf $(PROJ_NAME).bin
 
