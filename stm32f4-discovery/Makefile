@@ -48,7 +48,7 @@ $(PROJ_NAME).elf: $(SRCS)
 	$(OBJCOPY) -O binary $(PROJ_NAME).elf $(PROJ_NAME).bin
 
 clean:
-	rm -f *.o
+	$(MAKE) -C lib clean
 	rm -f $(PROJ_NAME).elf
 	rm -f $(PROJ_NAME).hex
 	rm -f $(PROJ_NAME).bin
